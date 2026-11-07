@@ -219,6 +219,9 @@ function computeDewormSchedule() {
     const month = calcMonthFromBirth(now);
     const schedule = [];
 
+    const triadDates = vaccines.filter(v => v.name.includes('三联') || v.name.includes('妙三多'));
+    const isVaccineComplete = triadDates.length >= 3 && vaccines.some(v => v.name.includes('狂犬'));
+
     const lastInternal = dewormRecords.internal.length > 0
         ? dewormRecords.internal[dewormRecords.internal.length - 1] : null;
     const lastExternal = dewormRecords.external.length > 0
@@ -229,15 +232,15 @@ function computeDewormSchedule() {
     else if (month < 6) interval = 30;
     else interval = 90;
 
-    let note;
-    if (!lastInternal) {
-        note = `从未驱虫，${month.toFixed(1)} 月龄幼猫建议立即开始体内驱虫`;
-    } else if (month < 3) {
-        note = '3 月龄以下：每 2 周一次';
-    } else if (month < 6) {
-        note = '3-6 月龄：每月一次';
-    } else {
-        note = '6 月龄以上：每 3 个月一次';
+    let vaccineTip = '';
+    if (!isVaccineComplete && !lastInternal) {
+        const lastTriad = triadDates.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+        if (lastTriad) {
+            const readyDate = formatDate(addDays(lastTriad.date, 14));
+            vaccineTip = `建议 基础免疫完成后 1-2 周 再开始，预计 ${readyDate} 后`;
+        } else {
+            vaccineTip = '建议 基础免疫完成后 1-2 周 再开始';
+        }
     }
 
     let nextInternalDate;
@@ -248,13 +251,17 @@ function computeDewormSchedule() {
     }
     const iDays = daysFromToday(nextInternalDate);
     let iStatus = 'upcoming', iUrgent = false;
-    if (!lastInternal || iDays < -3) { iStatus = 'overdue'; iUrgent = true; }
+    if (!lastInternal) { iStatus = isVaccineComplete ? 'overdue' : 'upcoming'; iUrgent = isVaccineComplete; }
+    else if (iDays < -3) { iStatus = 'overdue'; iUrgent = true; }
     else if (iDays <= 7) { iStatus = 'soon'; iUrgent = iDays < 0; }
+
+    let iNote = lastInternal ? `上一次 ${lastInternal}` : `从未做过`;
+    if (vaccineTip) iNote += `（${vaccineTip}）`;
 
     schedule.push({
         type: 'internal', label: '体内驱虫',
         due: nextInternalDate, status: iStatus, urgent: iUrgent,
-        note: lastInternal ? `上一次 ${lastInternal}` : `从未做过 — ${note}`
+        note: iNote
     });
 
     let nextExternalDate;
@@ -265,13 +272,91 @@ function computeDewormSchedule() {
     }
     const eDays = daysFromToday(nextExternalDate);
     let eStatus = 'upcoming', eUrgent = false;
-    if (!lastExternal || eDays < -3) { eStatus = 'overdue'; eUrgent = true; }
+    if (!lastExternal) { eStatus = isVaccineComplete ? 'overdue' : 'upcoming'; eUrgent = isVaccineComplete; }
+    else if (eDays < -3) { eStatus = 'overdue'; eUrgent = true; }
     else if (eDays <= 7) { eStatus = 'soon'; eUrgent = eDays < 0; }
+
+    let eNote = lastExternal ? `上一次 ${lastExternal}` : '从未做过 — 每月一次';
+    if (vaccineTip) eNote += `（${vaccineTip}）`;
 
     schedule.push({
         type: 'external', label: '体外驱虫',
         due: nextExternalDate, status: eStatus, urgent: eUrgent,
-        note: lastExternal ? `上一次 ${lastExternal}` : '从未做过 — 建议立即开始，每月一次'
+        note: eNote
+    });
+
+    return schedule;
+}
+
+function computeNeuterSchedule() {
+    const now = new Date();
+    const month = calcMonthFromBirth(now);
+    const lastRecord = records.length > 0 ? records[records.length - 1] : null;
+    const currentWeight = lastRecord ? lastRecord.weight : 0;
+
+    const triadDates = vaccines.filter(v => v.name.includes('三联') || v.name.includes('妙三多'));
+    const hasRabies = vaccines.some(v => v.name.includes('狂犬'));
+    const triadComplete = triadDates.length >= 3;
+    const vaccineComplete = triadComplete && hasRabies;
+
+    const earliestMonth = 5;
+    const minWeight = 2.5;
+
+    const schedule = [];
+
+    let blockers = [];
+    if (!triadComplete) blockers.push('妙三多未完成（缺第 ' + (triadDates.length + 1) + ' 针）');
+    if (!hasRabies) blockers.push('狂犬疫苗未打');
+    if (currentWeight < minWeight) blockers.push(`当前 ${currentWeight.toFixed(2)}kg，需 ≥ ${minWeight}kg`);
+    if (month < earliestMonth) blockers.push(`当前 ${month.toFixed(1)} 月龄，需 ≥ ${earliestMonth} 月龄`);
+
+    let earliestReady = null;
+    const earliestByAge = addDays(formatDate(BIRTH_DATE), earliestMonth * 30);
+    const earliestByVaccine = (() => {
+        const lastTriad = triadDates.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+        if (vaccineComplete) return addDays(formatDate(now), 14);
+        if (lastTriad && triadComplete && !hasRabies) return null;
+        if (lastTriad) return addDays(lastTriad.date, 14);
+        return addDays(formatDate(now), 60);
+    })();
+
+    const candidates = [earliestByAge, earliestByVaccine].filter(d => d !== null);
+    if (candidates.length > 0) {
+        earliestReady = candidates.reduce((a, b) => new Date(a) > new Date(b) ? a : b);
+    } else {
+        earliestReady = addDays(formatDate(now), 30);
+    }
+
+    let neuterDate = formatDate(earliestReady);
+    let status, urgent = false, label, note;
+
+    if (blockers.length > 0) {
+        status = 'upcoming';
+        label = '绝育（去势手术）';
+        note = '前置条件未满足：\n• ' + blockers.join('\n• ');
+        note += `\n预计最早可手术时间：${neuterDate}`;
+    } else {
+        const monthF = calcMonthFromBirth(new Date(neuterDate));
+        if (monthF <= 8) {
+            status = 'soon';
+            urgent = true;
+            label = '绝育（去势手术）· 最佳窗口期';
+            note = `满足所有条件！${monthF.toFixed(1)} 月龄正处于 6-8 月黄金窗口（首次发情前）。建议尽快预约。`;
+        } else if (monthF <= 12) {
+            status = 'soon';
+            label = '绝育（去势手术）· 建议尽快';
+            note = `${monthF.toFixed(1)} 月龄，超过 8 月龄但仍在一年内，可以做。若已出现发情迹象（乱尿、嚎叫）请速约。`;
+        } else {
+            status = 'overdue';
+            urgent = true;
+            label = '绝育（去势手术）· 已超过 1 岁';
+            note = `${monthF.toFixed(1)} 月龄，建议尽快安排。术前需做全套体检（血常规+生化+心超）评估麻醉风险。`;
+        }
+    }
+
+    schedule.push({
+        type: 'neuter', label,
+        due: neuterDate, status, urgent, note
     });
 
     return schedule;
@@ -292,6 +377,10 @@ function updateHealthManageCard() {
     const dwSchedule = computeDewormSchedule();
     const dwNext = document.getElementById('deworm-next');
     dwNext.innerHTML = dwSchedule.map(s => nextItemHTML(s)).join('');
+
+    const ntSchedule = computeNeuterSchedule();
+    const ntNext = document.getElementById('neuter-next');
+    if (ntNext) ntNext.innerHTML = ntSchedule.map(s => nextItemHTML(s)).join('');
 }
 
 function nextItemHTML(s) {
@@ -312,19 +401,22 @@ function nextItemHTML(s) {
 
     const iconMap = {
         triad: '💉', 'triad-annual': '💉', rabies: '🐕', 'rabies-annual': '🐕',
-        internal: '💊', external: '🧴'
+        internal: '💊', external: '🧴', neuter: '✂️'
     };
+
+    const icon = iconMap[s.type] || '📌';
+    const noteHTML = (s.note || '').replace(/\n/g, '<br>');
 
     return `
         <div class="hm-next-item ${st.cls}">
-            <span class="hm-icon">${iconMap[s.type] || '📌'}</span>
+            <span class="hm-icon">${icon}</span>
             <div class="hm-next-body">
                 <div class="hm-next-row">
                     <span class="hm-next-label">${s.label}</span>
                     <span class="hm-badge ${st.cls}">${st.badge}</span>
                 </div>
                 <div class="hm-next-date">📅 ${s.due} <span class="hm-next-days">· ${daysLabel}</span></div>
-                <div class="hm-next-note">${s.note}</div>
+                <div class="hm-next-note">${noteHTML}</div>
             </div>
         </div>
     `;
