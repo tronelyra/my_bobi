@@ -133,6 +133,9 @@ function daysFromToday(dateStr) {
     return daysBetween(new Date(), new Date(dateStr));
 }
 
+const VACCINE_INTERVAL_DAYS = 28;
+const RABIES_MIN_GAP_DAYS = 7;
+
 function computeVaccineSchedule() {
     const now = new Date();
     const schedule = [];
@@ -151,23 +154,23 @@ function computeVaccineSchedule() {
         });
     } else if (triadDates.length < 3) {
         const last = triadDates[triadDates.length - 1];
-        const nextDate = addDays(last.date, 21);
+        const nextDate = addDays(last.date, VACCINE_INTERVAL_DAYS);
         const doseNum = triadDates.length + 1;
         const days = daysFromToday(formatDate(nextDate));
 
         let status, urgent = false;
-        if (days < -3) { status = 'overdue'; urgent = true; }
+        if (days < -7) { status = 'overdue'; urgent = true; }
         else if (days <= 7) { status = 'soon'; urgent = days < 0; }
         else { status = 'upcoming'; }
 
         schedule.push({
             type: 'triad', label: `妙三多 第${doseNum}针`,
             due: formatDate(nextDate), status, urgent,
-            note: `上一针 ${last.date}，间隔 21 天`
+            note: `上一针 ${last.date}，间隔 ${VACCINE_INTERVAL_DAYS} 天（WSAVA 推荐 3-4 周）`
         });
 
         if (doseNum === 3 && !hasRabies) {
-            const rabiesDate = addDays(nextDate, 0);
+            const rabiesDate = addDays(nextDate, RABIES_MIN_GAP_DAYS);
             const rDays = daysFromToday(formatDate(rabiesDate));
             let rStatus = 'upcoming';
             if (rDays < -7) { rStatus = 'overdue'; }
