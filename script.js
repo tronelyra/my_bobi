@@ -227,21 +227,37 @@ function updateTable() {
         const std = lookupStd(month);
         const ev = evalWeight(r.weight, std);
 
+        const stdMin = std.min;
+        const stdMax = std.max;
+        const range = stdMax - stdMin;
+        const pad = range * 0.4;
+        const viewMin = Math.max(0, stdMin - pad);
+        const viewMax = stdMax + pad;
+        const viewRange = viewMax - viewMin;
+        const markerPos = Math.max(0, Math.min(100, ((r.weight - viewMin) / viewRange) * 100));
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${r.date}</td>
-            <td>${r.weight.toFixed(2)} kg</td>
-            <td class="${growClass}">${growStr}</td>
+            <td class="td-date">${r.date}</td>
+            <td class="td-weight">${r.weight.toFixed(2)} <small>kg</small></td>
+            <td class="${growClass} td-grow">${growStr}</td>
             <td class="bar-cell">
                 <div class="bar-wrap">
                     <div class="bar-fill" style="width: ${pct}%"></div>
                 </div>
             </td>
-            <td>
-                <span class="std-badge std-${ev.status}" style="border-color: ${ev.color}50; background: ${ev.color}14; color: ${ev.color}">
-                    ${ev.label}
-                </span>
-                <div class="std-sub">${std.min.toFixed(1)}~${std.max.toFixed(1)}kg</div>
+            <td class="td-std">
+                <div class="std-range">
+                    <div class="std-range-track"></div>
+                    <div class="std-range-band" style="left: ${((stdMin - viewMin) / viewRange) * 100}%; width: ${(range / viewRange) * 100}%"></div>
+                    <div class="std-range-marker ${ev.status}" style="left: ${markerPos}%; background: ${ev.color}"></div>
+                </div>
+                <div class="std-range-labels">
+                    <span>${stdMin.toFixed(1)}</span>
+                    <span class="std-range-center">${((stdMin + stdMax) / 2).toFixed(1)}</span>
+                    <span>${stdMax.toFixed(1)}</span>
+                </div>
+                <span class="std-badge" style="border-color: ${ev.color}50; background: ${ev.color}14; color: ${ev.color}">${ev.label}</span>
             </td>
         `;
         tbody.appendChild(tr);
@@ -279,11 +295,11 @@ function updateChart() {
                         const m = calcMonthFromBirth(new Date(r.date));
                         return lookupStd(m).min;
                     }),
-                    borderColor: 'rgba(100, 116, 139, 0.35)',
-                    backgroundColor: 'transparent',
-                    borderDash: [4, 4],
-                    borderWidth: 1.5,
-                    fill: false,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.06)',
+                    borderDash: [6, 4],
+                    borderWidth: 1.8,
+                    fill: '+1',
                     tension: 0.4,
                     pointRadius: 0,
                     order: 3
@@ -294,11 +310,11 @@ function updateChart() {
                         const m = calcMonthFromBirth(new Date(r.date));
                         return lookupStd(m).max;
                     }),
-                    borderColor: 'rgba(100, 116, 139, 0.35)',
-                    backgroundColor: 'rgba(148, 163, 184, 0.08)',
-                    borderDash: [4, 4],
-                    borderWidth: 1.5,
-                    fill: '+1',
+                    borderColor: '#ec4899',
+                    backgroundColor: 'transparent',
+                    borderDash: [6, 4],
+                    borderWidth: 1.8,
+                    fill: false,
                     tension: 0.4,
                     pointRadius: 0,
                     order: 3
@@ -309,7 +325,7 @@ function updateChart() {
                         const m = calcMonthFromBirth(new Date(r.date));
                         return lookupStd(m).avg;
                     }),
-                    borderColor: 'rgba(100, 116, 139, 0.6)',
+                    borderColor: '#7c3aed',
                     backgroundColor: 'transparent',
                     borderDash: [2, 3],
                     borderWidth: 1.5,
@@ -319,7 +335,7 @@ function updateChart() {
                     order: 2
                 },
                 {
-                    label: '波比实际体重 (kg)',
+                    label: '波比实际体重',
                     data: dataActual,
                     borderColor: '#ff8c42',
                     backgroundColor: actualGrad,
@@ -349,11 +365,12 @@ function updateChart() {
                     position: 'bottom',
                     labels: {
                         usePointStyle: true,
-                        pointStyle: ['rect', 'rect', 'line', 'circle'],
+                        pointStyle: ['line', 'line', 'line', 'circle'],
                         padding: 14,
                         font: { family: 'Noto Sans SC', size: 11 },
                         color: '#8b7355',
-                        boxWidth: 8
+                        boxWidth: 12,
+                        boxHeight: 2
                     }
                 },
                 tooltip: {

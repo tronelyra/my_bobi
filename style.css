@@ -337,10 +337,14 @@ body {
     color: var(--text-light);
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    padding: 10px 12px;
+    padding: 10px 10px;
     text-align: center;
     border-bottom: 2px solid var(--border);
+    white-space: nowrap;
 }
+
+.weight-table thead th:last-child { text-align: center; min-width: 180px; }
+.weight-table thead .th-bar { min-width: 120px; }
 
 .weight-table tbody tr {
     transition: background 0.2s;
@@ -349,14 +353,17 @@ body {
 .weight-table tbody tr:hover { background: rgba(255, 140, 66, 0.04); }
 
 .weight-table td {
-    padding: 14px 12px;
+    padding: 12px 10px;
     text-align: center;
     border-bottom: 1px solid var(--border);
     font-size: 0.9rem;
     font-variant-numeric: tabular-nums;
 }
 
-.weight-table td:first-child { text-align: left; font-weight: 500; color: var(--text); }
+.weight-table td.td-date { text-align: left; font-weight: 500; color: var(--text); white-space: nowrap; }
+.weight-table td.td-weight { font-weight: 700; color: var(--primary-dark); white-space: nowrap; }
+.weight-table td.td-weight small { font-weight: 400; color: var(--text-lighter); font-size: 0.72rem; }
+.weight-table td.td-grow { white-space: nowrap; }
 
 .weight-table tr:last-child td { border-bottom: none; }
 
@@ -365,9 +372,7 @@ body {
     font-weight: 600;
 }
 
-.bar-cell {
-    min-width: 120px;
-}
+.bar-cell { min-width: 110px; }
 
 .bar-wrap {
     position: relative;
@@ -387,21 +392,87 @@ body {
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.std-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 999px;
-    border: 1px solid transparent;
-    line-height: 1.4;
+.td-std {
+    min-width: 170px;
+    text-align: center;
 }
 
-.std-sub {
-    font-size: 0.65rem;
+.std-range {
+    position: relative;
+    height: 14px;
+    background: transparent;
+    margin: 0 auto;
+    width: 160px;
+    top: 2px;
+}
+
+.std-range-track {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 4px;
+    background: #f1ece3;
+    border-radius: 999px;
+    transform: translateY(-50%);
+}
+
+.std-range-band {
+    position: absolute;
+    top: 50%;
+    height: 6px;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.18), rgba(236, 72, 153, 0.18));
+    border-radius: 999px;
+    transform: translateY(-50%);
+    border: 1px solid rgba(124, 58, 237, 0.22);
+    top: 50%;
+}
+
+.std-range-band { top: 4px; }
+
+.std-range-marker {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 2px #fff;
+    z-index: 2;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.std-range-marker.thin { animation: pulse-marker 1.6s ease-in-out infinite; }
+.std-range-marker.fat { animation: pulse-marker 1.6s ease-in-out infinite; }
+
+@keyframes pulse-marker {
+    0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 2px #fff, 0 0 0 0 currentColor; }
+    50% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 2px #fff, 0 0 0 4px currentColor; }
+}
+
+.std-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
     color: var(--text-lighter);
-    margin-top: 3px;
+    margin-top: 2px;
     font-variant-numeric: tabular-nums;
+    width: 160px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.std-range-labels .std-range-center { color: var(--text-light); }
+
+.std-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    line-height: 1.5;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
 }
 
 /* ========== HEALTH CARD ========== */
