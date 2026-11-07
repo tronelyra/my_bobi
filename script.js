@@ -5,7 +5,8 @@ const GENDER = 'male';
 const records = [
     { date: '2026-10-15', weight: 1.87 },
     { date: '2026-10-22', weight: 2.00 },
-    { date: '2026-10-27', weight: 2.13 }
+    { date: '2026-10-27', weight: 2.13 },
+    { date: '2026-11-07', weight: 2.25 }
 ];
 
 records.sort((a, b) => new Date(a.date) - new Date(b.date));
