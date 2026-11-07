@@ -569,38 +569,52 @@ body {
     line-height: 1.5;
 }
 
-/* ========== HEALTH MANAGE CARD ========== */
+/* ========== SUB CARDS (vaccine / deworm / neuter) ========== */
 
-.health-manage-card {
-    background: linear-gradient(160deg, #fef9f0 0%, #fff4e0 100%);
+.vaccine-dot { background: linear-gradient(135deg, #60a5fa, #3b82f6) !important; box-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
+.deworm-dot  { background: linear-gradient(135deg, #34d399, #10b981) !important; box-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
+.neuter-dot  { background: linear-gradient(135deg, #f472b6, #ec4899) !important; box-shadow: 0 0 8px rgba(244, 114, 182, 0.4); }
+
+.subcard {
+    background: rgba(255, 255, 255, 0.55);
 }
 
-.manage-dot { background: linear-gradient(135deg, #ff6b9d, #ffc371) !important; box-shadow: 0 0 8px rgba(255, 107, 157, 0.5); }
-
-.hm-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 16px;
+.sub-section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-lighter);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 10px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(139, 115, 85, 0.15);
 }
 
-.hm-col {
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 14px;
-    padding: 14px;
-    border: 1px solid rgba(255, 140, 66, 0.1);
-    min-height: 160px;
+.sub-section-label:first-child {
+    margin-top: 0;
 }
 
-.hm-col-head {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed rgba(139, 115, 85, 0.2);
+.info-list-compact {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(139, 115, 85, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.hm-col-title {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--text);
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+}
+
+.info-row .highlight {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-left: auto;
 }
 
 .hm-empty {
@@ -1038,11 +1052,6 @@ body {
 
     .health-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .hm-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
     }
 
     .hero-bg .paw { width: 50px; }

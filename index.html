@@ -75,6 +75,27 @@
                 </div>
             </section>
 
+            <section class="card table-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot table-dot"></span>体重记录</h2>
+                    <span class="card-subtitle" id="record-count">共 0 条记录</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="weight-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>体重</th>
+                                <th>增长</th>
+                                <th class="th-bar">增长占比</th>
+                                <th>品种标准</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weight-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <section class="card health-card-main">
                 <div class="card-head">
                     <h2 class="card-title"><span class="icon-dot health-dot"></span>健康分析</h2>
@@ -107,61 +128,6 @@
                     <div class="stage-note" id="health-stage-note">—</div>
                 </div>
             </section>
-
-            <section class="card health-manage-card">
-                <div class="card-head">
-                    <h2 class="card-title"><span class="icon-dot manage-dot"></span>健康管理 · 疫苗 / 驱虫 / 绝育</h2>
-                    <span class="card-subtitle">自动推算最佳时间窗口</span>
-                </div>
-                <div class="hm-grid">
-                    <div class="hm-col">
-                        <div class="hm-col-head">
-                            <span class="hm-col-title">💉 疫苗历史</span>
-                        </div>
-                        <div id="vaccine-list" class="hm-history"></div>
-                    </div>
-                    <div class="hm-col">
-                        <div class="hm-col-head">
-                            <span class="hm-col-title">📌 下次疫苗</span>
-                        </div>
-                        <div id="vaccine-next" class="hm-next"></div>
-                    </div>
-                    <div class="hm-col">
-                        <div class="hm-col-head">
-                            <span class="hm-col-title">🛡️ 驱虫计划</span>
-                        </div>
-                        <div id="deworm-next" class="hm-next"></div>
-                    </div>
-                    <div class="hm-col">
-                        <div class="hm-col-head">
-                            <span class="hm-col-title">✂️ 绝育建议</span>
-                        </div>
-                        <div id="neuter-next" class="hm-next"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="card table-card">
-                <div class="card-head">
-                    <h2 class="card-title"><span class="icon-dot table-dot"></span>体重记录</h2>
-                    <span class="card-subtitle" id="record-count">共 0 条记录</span>
-                </div>
-                <div class="table-wrapper">
-                    <table class="weight-table">
-                        <thead>
-                            <tr>
-                                <th>日期</th>
-                                <th>体重</th>
-                                <th>增长</th>
-                                <th class="th-bar">增长占比</th>
-                                <th>品种标准</th>
-                            </tr>
-                        </thead>
-                        <tbody id="weight-tbody"></tbody>
-                    </table>
-                </div>
-            </section>
-
         </div>
 
         <aside class="layout-side">
@@ -183,22 +149,42 @@
                     <span class="stage-current-label">当前处于</span>
                     <span class="stage-current-name" id="breed-stage">-</span>
                 </div>
+                <div class="info-list-compact">
+                    <div class="info-row"><span>🎂</span><span>2026.06.12</span></div>
+                    <div class="info-row"><span>🏠</span><span>2026.10.07 到家</span></div>
+                    <div class="info-row"><span>⏳</span><span class="highlight" id="next-birthday">-</span></div>
+                </div>
             </section>
 
-            <section class="card profile-card">
+            <section class="card subcard vaccine-subcard">
                 <div class="card-head">
-                    <h2 class="card-title"><span class="icon-dot profile-dot"></span>基本信息</h2>
+                    <h2 class="card-title"><span class="icon-dot vaccine-dot"></span>💉 疫苗</h2>
                 </div>
-                <ul class="info-list">
-                    <li><span class="info-emoji">🎂</span><span class="info-label">生日</span><span class="info-value">2026 年 6 月 12 日</span></li>
-                    <li><span class="info-emoji">🏠</span><span class="info-label">到家日期</span><span class="info-value">2026 年 10 月 7 日</span></li>
-                    <li><span class="info-emoji">⏳</span><span class="info-label">距下次生日</span><span class="info-value highlight" id="next-birthday">-</span></li>
-                </ul>
+                <div class="sub-section-label">历史记录</div>
+                <div id="vaccine-list" class="hm-history"></div>
+                <div class="sub-section-label">下次计划</div>
+                <div id="vaccine-next" class="hm-next"></div>
+            </section>
+
+            <section class="card subcard deworm-subcard">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot deworm-dot"></span>🛡️ 驱虫</h2>
+                </div>
+                <div class="sub-section-label">驱虫计划</div>
+                <div id="deworm-next" class="hm-next"></div>
+            </section>
+
+            <section class="card subcard neuter-subcard">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot neuter-dot"></span>✂️ 绝育</h2>
+                </div>
+                <div class="sub-section-label">去势手术建议</div>
+                <div id="neuter-next" class="hm-next"></div>
             </section>
 
             <section class="card stats-card">
                 <div class="card-head">
-                    <h2 class="card-title"><span class="icon-dot stats-dot"></span>成长数据</h2>
+                    <h2 class="card-title"><span class="icon-dot stats-dot"></span>📊 成长数据</h2>
                 </div>
                 <div class="stat-big">
                     <span class="stat-icon">📦</span>

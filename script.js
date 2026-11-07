@@ -299,16 +299,16 @@ function computeNeuterSchedule() {
     const triadComplete = triadDates.length >= 3;
     const vaccineComplete = triadComplete && hasRabies;
 
-    const earliestMonth = 5;
-    const minWeight = 2.5;
+    const earliestMonth = 8;
+    const minWeight = 3.0;
 
     const schedule = [];
 
     let blockers = [];
     if (!triadComplete) blockers.push('妙三多未完成（缺第 ' + (triadDates.length + 1) + ' 针）');
     if (!hasRabies) blockers.push('狂犬疫苗未打');
-    if (currentWeight < minWeight) blockers.push(`当前 ${currentWeight.toFixed(2)}kg，需 ≥ ${minWeight}kg`);
-    if (month < earliestMonth) blockers.push(`当前 ${month.toFixed(1)} 月龄，需 ≥ ${earliestMonth} 月龄`);
+    if (currentWeight < minWeight) blockers.push(`当前 ${currentWeight.toFixed(2)}kg，需 ≥ ${minWeight}kg（英短体型较大）`);
+    if (month < earliestMonth) blockers.push(`当前 ${month.toFixed(1)} 月龄，需 ≥ ${earliestMonth} 月龄（英短发育较晚）`);
 
     let earliestReady = null;
     const earliestByAge = addDays(formatDate(BIRTH_DATE), earliestMonth * 30);
@@ -324,7 +324,7 @@ function computeNeuterSchedule() {
     if (candidates.length > 0) {
         earliestReady = candidates.reduce((a, b) => new Date(a) > new Date(b) ? a : b);
     } else {
-        earliestReady = addDays(formatDate(now), 30);
+        earliestReady = addDays(formatDate(now), 60);
     }
 
     let neuterDate = formatDate(earliestReady);
@@ -337,20 +337,20 @@ function computeNeuterSchedule() {
         note += `\n预计最早可手术时间：${neuterDate}`;
     } else {
         const monthF = calcMonthFromBirth(new Date(neuterDate));
-        if (monthF <= 8) {
+        if (monthF <= 12) {
             status = 'soon';
             urgent = true;
             label = '绝育（去势手术）· 最佳窗口期';
-            note = `满足所有条件！${monthF.toFixed(1)} 月龄正处于 6-8 月黄金窗口（首次发情前）。建议尽快预约。`;
-        } else if (monthF <= 12) {
+            note = `满足所有条件！${monthF.toFixed(1)} 月龄，8-12 月是英短金渐层公猫黄金窗口（首次发情前，睾丸发育成熟）。建议尽快预约。`;
+        } else if (monthF <= 18) {
             status = 'soon';
             label = '绝育（去势手术）· 建议尽快';
-            note = `${monthF.toFixed(1)} 月龄，超过 8 月龄但仍在一年内，可以做。若已出现发情迹象（乱尿、嚎叫）请速约。`;
+            note = `${monthF.toFixed(1)} 月龄，超过 1 岁但仍在一年半内，可以做。若已出现发情迹象（乱尿、嚎叫）请速约。`;
         } else {
             status = 'overdue';
             urgent = true;
-            label = '绝育（去势手术）· 已超过 1 岁';
-            note = `${monthF.toFixed(1)} 月龄，建议尽快安排。术前需做全套体检（血常规+生化+心超）评估麻醉风险。`;
+            label = '绝育（去势手术）· 已超过 1.5 岁';
+            note = `${monthF.toFixed(1)} 月龄，建议尽快安排。英短体型大，术前需做全套体检（血常规+生化+心超）评估麻醉风险。`;
         }
     }
 
