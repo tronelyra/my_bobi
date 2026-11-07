@@ -1036,11 +1036,18 @@ body {
 
     .hero-stat { min-width: 70px; }
 
-    .container { padding: 24px 16px; }
+    .container {
+        padding: 24px 16px;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .layout-side {
+        position: static;
+        gap: 16px;
+    }
 
     .card { padding: 22px 18px; border-radius: 16px; }
-
-    .layout-side { grid-template-columns: 1fr; }
 
     .card-head {
         flex-direction: column;
