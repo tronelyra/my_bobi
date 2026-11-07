@@ -1,25 +1,13 @@
 const BIRTH_DATE = new Date('2026-06-12');
 const HOME_DATE = new Date('2026-10-07');
 
-let records = [
+const records = [
     { date: '2026-10-15', weight: 1.87 },
     { date: '2026-10-22', weight: 2.00 },
     { date: '2026-10-27', weight: 2.13 }
 ];
 
-const STORAGE_KEY = 'bobi_weight_records';
-
-function loadRecords() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try { records = JSON.parse(saved); } catch (e) {}
-    }
-    records.sort((a, b) => new Date(a.date) - new Date(b.date));
-}
-
-function saveRecords() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
+records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
 function daysBetween(a, b) {
     return Math.floor((b - a) / (1000 * 60 * 60 * 24));
@@ -163,17 +151,11 @@ function updateChart() {
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: {
-                        color: '#b5a08a',
-                        font: { family: 'Noto Sans SC', size: 11 }
-                    },
+                    ticks: { color: '#b5a08a', font: { family: 'Noto Sans SC', size: 11 } },
                     border: { display: false }
                 },
                 y: {
-                    grid: {
-                        color: '#fff0e0',
-                        drawBorder: false
-                    },
+                    grid: { color: '#fff0e0', drawBorder: false },
                     ticks: {
                         color: '#8b7355',
                         font: { family: 'Noto Sans SC', size: 11 },
@@ -207,19 +189,4 @@ function render() {
     pickQuote();
 }
 
-document.getElementById('add-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const date = document.getElementById('date').value;
-    const weight = parseFloat(document.getElementById('weight').value);
-    if (!date || isNaN(weight) || weight <= 0) return;
-    records.push({ date, weight });
-    records.sort((a, b) => new Date(a.date) - new Date(b.date));
-    saveRecords();
-    render();
-    this.reset();
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    loadRecords();
-    render();
-});
+window.addEventListener('DOMContentLoaded', render);
