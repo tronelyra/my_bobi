@@ -11,6 +11,16 @@ const records = [
 
 records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+const vaccines = [
+    { name: '妙三多（猫三联）', date: '2026-09-28', dose: 1, note: '首免' },
+    { name: '妙三多（猫三联）', date: '2026-10-18', dose: 2, note: '二免' },
+];
+
+const dewormRecords = {
+    internal: [],
+    external: []
+};
+
 const BRITISH_STD = {
     male: [
         { month: 0,  min: 0.09, max: 0.14, avg: 0.11 },
@@ -104,6 +114,218 @@ function evalWeight(weight, std) {
     if (deviation > 30) label = '标准偏低';
     if (weight > mid && deviation > 30) label = '标准偏高';
     return { status: 'normal', label, color: '#10b981', diff: 0, pct: 0 };
+}
+
+function addDays(dateStr, days) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + days);
+    return d;
+}
+
+function formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function daysFromToday(dateStr) {
+    return daysBetween(new Date(), new Date(dateStr));
+}
+
+function computeVaccineSchedule() {
+    const now = new Date();
+    const schedule = [];
+
+    const triadDates = vaccines.filter(v => v.name.includes('三联') || v.name.includes('妙三多'))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    const hasRabies = vaccines.some(v => v.name.includes('狂犬'));
+
+    if (triadDates.length === 0) {
+        const first = addDays(formatDate(BIRTH_DATE), 56);
+        schedule.push({
+            type: 'triad', label: '妙三多 第1针 (首免)',
+            due: formatDate(first), status: 'overdue',
+            note: '建议 8 周龄开始基础免疫',
+            urgent: true
+        });
+    } else if (triadDates.length < 3) {
+        const last = triadDates[triadDates.length - 1];
+        const nextDate = addDays(last.date, 21);
+        const doseNum = triadDates.length + 1;
+        const days = daysFromToday(formatDate(nextDate));
+
+        let status, urgent = false;
+        if (days < -3) { status = 'overdue'; urgent = true; }
+        else if (days <= 7) { status = 'soon'; urgent = days < 0; }
+        else { status = 'upcoming'; }
+
+        schedule.push({
+            type: 'triad', label: `妙三多 第${doseNum}针`,
+            due: formatDate(nextDate), status, urgent,
+            note: `上一针 ${last.date}，间隔 21 天`
+        });
+
+        if (doseNum === 3 && !hasRabies) {
+            const rabiesDate = addDays(nextDate, 0);
+            const rDays = daysFromToday(formatDate(rabiesDate));
+            let rStatus = 'upcoming';
+            if (rDays < -7) { rStatus = 'overdue'; }
+            else if (rDays <= 14) { rStatus = 'soon'; }
+            schedule.push({
+                type: 'rabies', label: '狂犬疫苗',
+                due: formatDate(rabiesDate), status: rStatus,
+                urgent: rStatus === 'overdue',
+                note: '三联基础免疫完成后接种狂犬疫苗'
+            });
+        }
+    } else {
+        const last = triadDates[triadDates.length - 1];
+        const annual = addDays(last.date, 365);
+        const days = daysFromToday(formatDate(annual));
+        let status = 'upcoming';
+        if (days < -14) { status = 'overdue'; }
+        else if (days <= 30) { status = 'soon'; }
+        schedule.push({
+            type: 'triad-annual', label: '妙三多 年度加强',
+            due: formatDate(annual), status, urgent: status === 'overdue',
+            note: `上一针 ${last.date}，每年加强一次`
+        });
+
+        if (hasRabies) {
+            const rabiesDates = vaccines.filter(v => v.name.includes('狂犬'));
+            const lastR = rabiesDates[rabiesDates.length - 1];
+            const rAnnual = addDays(lastR.date, 365);
+            const rDays = daysFromToday(formatDate(rAnnual));
+            let rStatus = 'upcoming';
+            if (rDays < -14) { rStatus = 'overdue'; }
+            else if (rDays <= 30) { rStatus = 'soon'; }
+            schedule.push({
+                type: 'rabies-annual', label: '狂犬疫苗 年度加强',
+                due: formatDate(rAnnual), status: rStatus, urgent: rStatus === 'overdue',
+                note: `上一针 ${lastR.date}，每年加强一次`
+            });
+        }
+    }
+
+    return schedule;
+}
+
+function computeDewormSchedule() {
+    const now = new Date();
+    const month = calcMonthFromBirth(now);
+    const schedule = [];
+
+    const lastInternal = dewormRecords.internal.length > 0
+        ? dewormRecords.internal[dewormRecords.internal.length - 1] : null;
+    const lastExternal = dewormRecords.external.length > 0
+        ? dewormRecords.external[dewormRecords.external.length - 1] : null;
+
+    let interval = 30;
+    if (month < 3) interval = 14;
+    else if (month < 6) interval = 30;
+    else interval = 90;
+
+    let note;
+    if (!lastInternal) {
+        note = `从未驱虫，${month.toFixed(1)} 月龄幼猫建议立即开始体内驱虫`;
+    } else if (month < 3) {
+        note = '3 月龄以下：每 2 周一次';
+    } else if (month < 6) {
+        note = '3-6 月龄：每月一次';
+    } else {
+        note = '6 月龄以上：每 3 个月一次';
+    }
+
+    let nextInternalDate;
+    if (!lastInternal) {
+        nextInternalDate = formatDate(now);
+    } else {
+        nextInternalDate = formatDate(addDays(lastInternal, interval));
+    }
+    const iDays = daysFromToday(nextInternalDate);
+    let iStatus = 'upcoming', iUrgent = false;
+    if (!lastInternal || iDays < -3) { iStatus = 'overdue'; iUrgent = true; }
+    else if (iDays <= 7) { iStatus = 'soon'; iUrgent = iDays < 0; }
+
+    schedule.push({
+        type: 'internal', label: '体内驱虫',
+        due: nextInternalDate, status: iStatus, urgent: iUrgent,
+        note: lastInternal ? `上一次 ${lastInternal}` : `从未做过 — ${note}`
+    });
+
+    let nextExternalDate;
+    if (!lastExternal) {
+        nextExternalDate = formatDate(now);
+    } else {
+        nextExternalDate = formatDate(addDays(lastExternal, 30));
+    }
+    const eDays = daysFromToday(nextExternalDate);
+    let eStatus = 'upcoming', eUrgent = false;
+    if (!lastExternal || eDays < -3) { eStatus = 'overdue'; eUrgent = true; }
+    else if (eDays <= 7) { eStatus = 'soon'; eUrgent = eDays < 0; }
+
+    schedule.push({
+        type: 'external', label: '体外驱虫',
+        due: nextExternalDate, status: eStatus, urgent: eUrgent,
+        note: lastExternal ? `上一次 ${lastExternal}` : '从未做过 — 建议立即开始，每月一次'
+    });
+
+    return schedule;
+}
+
+function updateHealthManageCard() {
+    const vaccineList = document.getElementById('vaccine-list');
+    const dewormList = document.getElementById('deworm-list');
+
+    const vHistory = vaccines.slice().reverse();
+    vaccineList.innerHTML = vHistory.length > 0
+        ? vHistory.map(v => `<div class="hm-history-item"><span class="hm-date">${v.date}</span><span class="hm-name">${v.name}${v.dose ? ' 第'+v.dose+'针' : ''}</span></div>`).join('')
+        : '<div class="hm-empty">暂无疫苗记录</div>';
+
+    const vacSchedule = computeVaccineSchedule();
+    const vacNext = document.getElementById('vaccine-next');
+    vacNext.innerHTML = vacSchedule.map(s => nextItemHTML(s)).join('');
+
+    const dwSchedule = computeDewormSchedule();
+    const dwNext = document.getElementById('deworm-next');
+    dewormList.innerHTML = dwSchedule.map(s => nextItemHTML(s)).join('');
+}
+
+function nextItemHTML(s) {
+    const now = new Date();
+    const due = new Date(s.due);
+    const days = daysBetween(now, due);
+    let daysLabel = '';
+    if (days < 0) daysLabel = `已逾期 ${-days} 天`;
+    else if (days === 0) daysLabel = '就是今天!';
+    else daysLabel = `还有 ${days} 天`;
+
+    const statusMap = {
+        overdue: { cls: 'status-overdue', badge: '逾期' },
+        soon: { cls: 'status-soon', badge: days < 0 ? '逾期' : '临近' },
+        upcoming: { cls: 'status-upcoming', badge: '待办' }
+    };
+    const st = statusMap[s.status];
+
+    const iconMap = {
+        triad: '💉', 'triad-annual': '💉', rabies: '🐕', 'rabies-annual': '🐕',
+        internal: '💊', external: '🧴'
+    };
+
+    return `
+        <div class="hm-next-item ${st.cls}">
+            <span class="hm-icon">${iconMap[s.type] || '📌'}</span>
+            <div class="hm-next-body">
+                <div class="hm-next-row">
+                    <span class="hm-next-label">${s.label}</span>
+                    <span class="hm-badge ${st.cls}">${st.badge}</span>
+                </div>
+                <div class="hm-next-date">📅 ${s.due} <span class="hm-next-days">· ${daysLabel}</span></div>
+                <div class="hm-next-note">${s.note}</div>
+            </div>
+        </div>
+    `;
 }
 
 function currentGrowthStage(month) {
@@ -432,6 +654,7 @@ function render() {
     updateSide();
     updateBreedCard();
     updateHealthCard();
+    updateHealthManageCard();
     updateTable();
     updateChart();
     pickQuote();

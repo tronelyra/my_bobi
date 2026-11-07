@@ -569,6 +569,181 @@ body {
     line-height: 1.5;
 }
 
+/* ========== HEALTH MANAGE CARD ========== */
+
+.health-manage-card {
+    background: linear-gradient(160deg, #fef9f0 0%, #fff4e0 100%);
+}
+
+.manage-dot { background: linear-gradient(135deg, #ff6b9d, #ffc371) !important; box-shadow: 0 0 8px rgba(255, 107, 157, 0.5); }
+
+.hm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.hm-col {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    padding: 14px;
+    border: 1px solid rgba(255, 140, 66, 0.1);
+    min-height: 160px;
+}
+
+.hm-col-head {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(139, 115, 85, 0.2);
+}
+
+.hm-col-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.hm-empty {
+    font-size: 0.78rem;
+    color: var(--text-lighter);
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+}
+
+.hm-history {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.hm-history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border-left: 3px solid #ff8c42;
+    font-size: 0.78rem;
+}
+
+.hm-history-item .hm-date {
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.hm-history-item .hm-name {
+    color: var(--text-light);
+    flex: 1;
+}
+
+.hm-next {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hm-next-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(139, 115, 85, 0.12);
+    background: rgba(255, 255, 255, 0.7);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hm-next-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.hm-next-item.status-overdue {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.06);
+    animation: urgent-pulse 2s ease-in-out infinite;
+}
+
+.hm-next-item.status-soon {
+    border-color: rgba(251, 146, 60, 0.3);
+    background: rgba(251, 146, 60, 0.06);
+}
+
+@keyframes urgent-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.15); }
+    50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+.hm-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+}
+
+.hm-next-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.hm-next-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.hm-next-label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.hm-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.hm-badge.status-overdue { background: #fee2e2; color: #dc2626; }
+.hm-badge.status-soon { background: #fed7aa; color: #ea580c; }
+.hm-badge.status-upcoming { background: #dcfce7; color: #16a34a; }
+
+.hm-next-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 3px;
+}
+
+.hm-next-days {
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+.hm-next-item.status-overdue .hm-next-days { color: #dc2626; }
+.hm-next-item.status-soon .hm-next-days { color: #ea580c; }
+
+.hm-next-note {
+    font-size: 0.72rem;
+    color: var(--text-lighter);
+    line-height: 1.4;
+}
+
 /* ========== BREED CARD ========== */
 
 .breed-card {
@@ -863,6 +1038,11 @@ body {
 
     .health-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hm-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .hero-bg .paw { width: 50px; }
