@@ -5,104 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>波比的成长日记 🐾</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
     <header class="hero">
-        <div class="hero-content">
-            <div class="avatar">
-                <span class="paw">🐾</span>
-            </div>
-            <h1>波比的成长日记</h1>
-            <p class="subtitle">记录每一天的可爱瞬间</p>
+        <div class="hero-bg">
+            <svg class="paw paw-1" viewBox="0 0 64 64" fill="rgba(255,255,255,0.18)">
+                <ellipse cx="20" cy="20" rx="6" ry="8"/><ellipse cx="36" cy="14" rx="5" ry="7"/><ellipse cx="48" cy="24" rx="6" ry="8"/>
+                <ellipse cx="14" cy="38" rx="5" ry="7"/><ellipse cx="32" cy="42" rx="10" ry="8"/>
+            </svg>
+            <svg class="paw paw-2" viewBox="0 0 64 64" fill="rgba(255,255,255,0.12)">
+                <ellipse cx="20" cy="20" rx="6" ry="8"/><ellipse cx="36" cy="14" rx="5" ry="7"/><ellipse cx="48" cy="24" rx="6" ry="8"/>
+                <ellipse cx="14" cy="38" rx="5" ry="7"/><ellipse cx="32" cy="42" rx="10" ry="8"/>
+            </svg>
+            <svg class="paw paw-3" viewBox="0 0 64 64" fill="rgba(255,255,255,0.15)">
+                <ellipse cx="20" cy="20" rx="6" ry="8"/><ellipse cx="36" cy="14" rx="5" ry="7"/><ellipse cx="48" cy="24" rx="6" ry="8"/>
+                <ellipse cx="14" cy="38" rx="5" ry="7"/><ellipse cx="32" cy="42" rx="10" ry="8"/>
+            </svg>
+            <circle class="dot dot-1" cx="0" cy="0" r="4" fill="rgba(255,255,255,0.25)"/>
+            <circle class="dot dot-2" cx="0" cy="0" r="3" fill="rgba(255,255,255,0.2)"/>
+            <circle class="dot dot-3" cx="0" cy="0" r="6" fill="rgba(255,255,255,0.15)"/>
+            <circle class="dot dot-4" cx="0" cy="0" r="3" fill="rgba(255,255,255,0.2)"/>
         </div>
+        <div class="hero-inner">
+            <div class="hero-left">
+                <div class="avatar-ring">
+                    <div class="avatar">
+                        <span class="paw-icon">🐾</span>
+                    </div>
+                </div>
+                <div class="hero-name-block">
+                    <p class="hello">Hi, 这是我的小宝贝</p>
+                    <h1>波比 <span class="en-name">Bobi</span></h1>
+                    <p class="tagline">每一次称重，都是爱的印记 ✨</p>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-stat">
+                    <div class="hero-stat-num" id="hero-age">-</div>
+                    <div class="hero-stat-label">当前年龄</div>
+                </div>
+                <div class="hero-divider"></div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num" id="hero-days">-<span class="unit">天</span></div>
+                    <div class="hero-stat-label">到家陪伴</div>
+                </div>
+                <div class="hero-divider"></div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num" id="hero-weight">-<span class="unit">kg</span></div>
+                    <div class="hero-stat-label">当前体重</div>
+                </div>
+            </div>
+        </div>
+        <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#fff8f0"/>
+        </svg>
     </header>
 
     <main class="container">
-        <section class="card profile-card">
-            <h2 class="card-title">👤 基本信息</h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="label">名字</span>
-                    <span class="value">波比 (Bobi)</span>
+        <div class="layout-main">
+            <section class="card chart-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot chart-dot"></span>体重增长曲线</h2>
+                    <span class="card-subtitle">直观见证波比的成长轨迹</span>
                 </div>
-                <div class="info-item">
-                    <span class="label">生日 🎂</span>
-                    <span class="value">2026 年 6 月 12 日</span>
+                <div class="chart-wrapper">
+                    <canvas id="weightChart"></canvas>
                 </div>
-                <div class="info-item">
-                    <span class="label">到家日期 🏠</span>
-                    <span class="value">2026 年 10 月 7 日</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">当前年龄</span>
-                    <span class="value" id="age">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">到家天数</span>
-                    <span class="value" id="days-at-home">-</span>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="card">
-            <h2 class="card-title">📈 体重增长曲线</h2>
-            <div class="chart-wrapper">
-                <canvas id="weightChart"></canvas>
-            </div>
-        </section>
+            <section class="card table-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot table-dot"></span>体重记录</h2>
+                    <span class="card-subtitle" id="record-count">共 0 条记录</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="weight-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>体重</th>
+                                <th>增长</th>
+                                <th class="th-bar">增长占比</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weight-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
 
-        <section class="card">
-            <h2 class="card-title">📋 体重记录</h2>
-            <div class="stats-summary">
-                <div class="stat">
-                    <span class="stat-num" id="initial-weight">-</span>
-                    <span class="stat-label">初始体重</span>
+            <section class="card add-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot add-dot"></span>添加新记录</h2>
+                    <span class="card-subtitle">记录今天波比的体重吧</span>
                 </div>
-                <div class="stat">
-                    <span class="stat-num" id="current-weight">-</span>
-                    <span class="stat-label">最新体重</span>
-                </div>
-                <div class="stat highlight">
-                    <span class="stat-num" id="gain-weight">-</span>
-                    <span class="stat-label">总共增长</span>
-                </div>
-            </div>
-            <div class="table-wrapper">
-                <table class="weight-table">
-                    <thead>
-                        <tr>
-                            <th>日期</th>
-                            <th>体重 (kg)</th>
-                            <th>增长 (kg)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="weight-tbody"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="card add-card">
-            <h2 class="card-title">➕ 添加新记录</h2>
-            <form id="add-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="date">日期</label>
-                        <input type="date" id="date" required>
+                <form id="add-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">📅 日期</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">⚖️ 体重 (kg)</label>
+                            <input type="number" id="weight" step="0.01" min="0" required placeholder="例如 2.15">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="weight">体重 (kg)</label>
-                        <input type="number" id="weight" step="0.01" min="0" required placeholder="例如 2.15">
+                    <button type="submit" class="btn">
+                        <span>💾 保存记录</span>
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <aside class="layout-side">
+            <section class="card profile-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot profile-dot"></span>基本信息</h2>
+                </div>
+                <ul class="info-list">
+                    <li><span class="info-emoji">🎂</span><span class="info-label">生日</span><span class="info-value">2026 年 6 月 12 日</span></li>
+                    <li><span class="info-emoji">🏠</span><span class="info-label">到家日期</span><span class="info-value">2026 年 10 月 7 日</span></li>
+                    <li><span class="info-emoji">⏳</span><span class="info-label">距下次生日</span><span class="info-value highlight" id="next-birthday">-</span></li>
+                </ul>
+            </section>
+
+            <section class="card stats-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot stats-dot"></span>成长数据</h2>
+                </div>
+                <div class="stat-big">
+                    <span class="stat-icon">📦</span>
+                    <div>
+                        <div class="stat-num-xl" id="gain-kg">-</div>
+                        <div class="stat-desc">累计体重增长</div>
                     </div>
                 </div>
-                <button type="submit" class="btn">保存记录 💾</button>
-            </form>
-        </section>
+                <div class="stat-big">
+                    <span class="stat-icon">📈</span>
+                    <div>
+                        <div class="stat-num-xl" id="gain-pct">-</div>
+                        <div class="stat-desc">相对初始增长</div>
+                    </div>
+                </div>
+                <div class="stat-big">
+                    <span class="stat-icon">⚡</span>
+                    <div>
+                        <div class="stat-num-xl" id="avg-daily">-</div>
+                        <div class="stat-desc">日均增长</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card quote-card">
+                <div class="quote-inner">
+                    <span class="quote-mark">"</span>
+                    <p class="quote-text" id="quote-text">波比，愿你每一天都健康、快乐、被爱包围 💛</p>
+                </div>
+            </section>
+        </aside>
     </main>
 
     <footer class="footer">
-        <p>Made with ❤️ for Bobi | 波比，健康快乐成长！</p>
+        <div class="footer-inner">
+            <span>Made with <span class="heart">❤</span> for Bobi</span>
+            <span class="footer-sep">·</span>
+            <span>波比，健康快乐成长！</span>
+        </div>
     </footer>
 
     <script src="script.js"></script>
