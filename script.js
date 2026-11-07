@@ -1,5 +1,6 @@
 const BIRTH_DATE = new Date('2026-06-12');
 const HOME_DATE = new Date('2026-10-07');
+const GENDER = 'male';
 
 const records = [
     { date: '2026-10-15', weight: 1.87 },
@@ -9,8 +10,106 @@ const records = [
 
 records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+const BRITISH_STD = {
+    male: [
+        { month: 0,  min: 0.09, max: 0.14, avg: 0.11 },
+        { month: 1,  min: 0.45, max: 0.70, avg: 0.58 },
+        { month: 2,  min: 0.95, max: 1.40, avg: 1.18 },
+        { month: 3,  min: 1.50, max: 2.20, avg: 1.85 },
+        { month: 4,  min: 2.10, max: 2.80, avg: 2.45 },
+        { month: 5,  min: 2.55, max: 3.40, avg: 2.98 },
+        { month: 6,  min: 3.00, max: 4.20, avg: 3.60 },
+        { month: 7,  min: 3.30, max: 4.70, avg: 4.00 },
+        { month: 8,  min: 3.60, max: 5.20, avg: 4.40 },
+        { month: 9,  min: 3.80, max: 5.50, avg: 4.65 },
+        { month: 10, min: 4.00, max: 5.80, avg: 4.90 },
+        { month: 11, min: 4.25, max: 6.10, avg: 5.18 },
+        { month: 12, min: 4.50, max: 6.40, avg: 5.45 },
+        { month: 18, min: 4.90, max: 7.20, avg: 6.05 },
+        { month: 24, min: 5.20, max: 7.50, avg: 6.35 },
+        { month: 36, min: 5.50, max: 8.50, avg: 7.00 }
+    ],
+    female: [
+        { month: 0,  min: 0.08, max: 0.13, avg: 0.10 },
+        { month: 1,  min: 0.40, max: 0.65, avg: 0.53 },
+        { month: 2,  min: 0.85, max: 1.25, avg: 1.05 },
+        { month: 3,  min: 1.30, max: 1.90, avg: 1.60 },
+        { month: 4,  min: 1.80, max: 2.40, avg: 2.10 },
+        { month: 5,  min: 2.15, max: 2.90, avg: 2.53 },
+        { month: 6,  min: 2.50, max: 3.40, avg: 2.95 },
+        { month: 7,  min: 2.70, max: 3.65, avg: 3.18 },
+        { month: 8,  min: 2.90, max: 3.90, avg: 3.40 },
+        { month: 9,  min: 3.05, max: 4.10, avg: 3.58 },
+        { month: 10, min: 3.20, max: 4.30, avg: 3.75 },
+        { month: 11, min: 3.35, max: 4.55, avg: 3.95 },
+        { month: 12, min: 3.50, max: 4.80, avg: 4.15 },
+        { month: 18, min: 3.65, max: 5.00, avg: 4.33 },
+        { month: 24, min: 3.80, max: 5.20, avg: 4.50 },
+        { month: 36, min: 4.00, max: 5.50, avg: 4.75 }
+    ]
+};
+
+const GROWTH_STAGES = [
+    { maxMonth: 2,  name: '新生哺乳期', note: '每日健康增重 10-15g，快速发育' },
+    { maxMonth: 4,  name: '幼猫社会化期', note: '骨骼快速拉长拔节，免疫接种关键期' },
+    { maxMonth: 6,  name: '骨骼高峰期',   note: '恒齿替换完成，达到成年体重 60-70%' },
+    { maxMonth: 8,  name: '青春期转折',   note: '纵向定型、胸廓横向拓宽，肌肉增粗' },
+    { maxMonth: 12, name: '青年成熟期',   note: '纵向骨骼发育基本完成，体态初显敦实' },
+    { maxMonth: 24, name: '骨密度提升期', note: '核心骨密度持续提升，公猫腮部丰满爆开' },
+    { maxMonth: 36, name: '完全成熟期',   note: '骨骼肌肉系统完全成熟，达到 Cobby 体态巅峰' }
+];
+
 function daysBetween(a, b) {
     return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+}
+
+function calcMonthFromBirth(date) {
+    const months = (date.getFullYear() - BIRTH_DATE.getFullYear()) * 12
+                 + (date.getMonth() - BIRTH_DATE.getMonth());
+    const dayDiff = date.getDate() - BIRTH_DATE.getDate();
+    return months + dayDiff / 30.4375;
+}
+
+function lookupStd(month) {
+    const table = BRITISH_STD[GENDER];
+    if (month <= table[0].month) return { ...table[0] };
+    if (month >= table[table.length - 1].month) return { ...table[table.length - 1] };
+    for (let i = 0; i < table.length - 1; i++) {
+        const a = table[i], b = table[i + 1];
+        if (month >= a.month && month <= b.month) {
+            const t = (month - a.month) / (b.month - a.month);
+            return {
+                min: a.min + (b.min - a.min) * t,
+                max: a.max + (b.max - a.max) * t,
+                avg: a.avg + (b.avg - a.avg) * t
+            };
+        }
+    }
+    return { min: 0, max: 0, avg: 0 };
+}
+
+function evalWeight(weight, std) {
+    if (weight < std.min) {
+        const pct = ((std.min - weight) / std.min * 100);
+        return { status: 'under', label: '偏瘦', color: '#4ab8ff', diff: -(std.min - weight), pct };
+    }
+    if (weight > std.max) {
+        const pct = ((weight - std.max) / std.max * 100);
+        return { status: 'over', label: '偏胖', color: '#f472b6', diff: weight - std.max, pct };
+    }
+    const mid = (std.min + std.max) / 2;
+    const deviation = Math.abs(weight - mid) / ((std.max - std.min) / 2) * 50;
+    let label = '标准';
+    if (deviation > 30) label = '标准偏低';
+    if (weight > mid && deviation > 30) label = '标准偏高';
+    return { status: 'normal', label, color: '#10b981', diff: 0, pct: 0 };
+}
+
+function currentGrowthStage(month) {
+    for (const s of GROWTH_STAGES) {
+        if (month <= s.maxMonth) return s;
+    }
+    return GROWTH_STAGES[GROWTH_STAGES.length - 1];
 }
 
 function calcAge(birthDate) {
@@ -64,6 +163,46 @@ function updateSide() {
     }
 }
 
+function updateBreedCard() {
+    const breedName = GENDER === 'male' ? '英国短毛猫 · 金渐层 · ♂ 公猫' : '英国短毛猫 · 金渐层 · ♀ 母猫';
+    document.getElementById('breed-name').textContent = breedName;
+    document.getElementById('breed-stage').textContent = currentGrowthStage(calcMonthFromBirth(new Date())).name;
+}
+
+function updateHealthCard() {
+    const last = records[records.length - 1];
+    if (!last) return;
+
+    const lastDate = new Date(last.date);
+    const month = calcMonthFromBirth(lastDate);
+    const std = lookupStd(month);
+    const eval = evalWeight(last.weight, std);
+
+    const stage = currentGrowthStage(month);
+
+    document.getElementById('health-month').textContent = month.toFixed(1) + ' 月龄';
+    document.getElementById('health-range').textContent = std.min.toFixed(2) + ' ~ ' + std.max.toFixed(2) + ' kg';
+    document.getElementById('health-avg').textContent = std.avg.toFixed(2) + ' kg';
+    document.getElementById('health-actual').textContent = last.weight.toFixed(2) + ' kg';
+    document.getElementById('health-eval').textContent = eval.label;
+    document.getElementById('health-eval').style.color = eval.color;
+    document.getElementById('health-eval').style.background = eval.color + '18';
+
+    if (eval.status === 'under') {
+        document.getElementById('health-detail').textContent =
+            '比该月龄标准下限低 ' + Math.abs(eval.diff).toFixed(2) + ' kg（低 ' + eval.pct.toFixed(0) + '%），建议增加营养摄入';
+    } else if (eval.status === 'over') {
+        document.getElementById('health-detail').textContent =
+            '比该月龄标准上限高 ' + eval.diff.toFixed(2) + ' kg（高 ' + eval.pct.toFixed(0) + '%），建议控制饮食并增加运动';
+    } else {
+        document.getElementById('health-detail').textContent =
+            '体重处于品种标准区间内，发育良好，继续保持！';
+    }
+
+    document.getElementById('health-stage-name').textContent = stage.name;
+    document.getElementById('health-stage-note').textContent = stage.note;
+}
+
 function updateTable() {
     const tbody = document.getElementById('weight-tbody');
     tbody.innerHTML = '';
@@ -84,6 +223,10 @@ function updateTable() {
         const growClass = g > 0 ? 'grow-positive' : '';
         const pct = i === 0 || totalGrowth <= 0 ? 0 : Math.max(0, (g / totalGrowth) * 100);
 
+        const month = calcMonthFromBirth(new Date(r.date));
+        const std = lookupStd(month);
+        const ev = evalWeight(r.weight, std);
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${r.date}</td>
@@ -94,6 +237,12 @@ function updateTable() {
                     <div class="bar-fill" style="width: ${pct}%"></div>
                 </div>
             </td>
+            <td>
+                <span class="std-badge std-${ev.status}" style="border-color: ${ev.color}50; background: ${ev.color}14; color: ${ev.color}">
+                    ${ev.label}
+                </span>
+                <div class="std-sub">${std.min.toFixed(1)}~${std.max.toFixed(1)}kg</div>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -102,49 +251,128 @@ function updateTable() {
 let chart = null;
 function updateChart() {
     const ctx = document.getElementById('weightChart').getContext('2d');
+
+    const allMonths = records.map(r => calcMonthFromBirth(new Date(r.date)));
     const labels = records.map(r => r.date.slice(5));
-    const data = records.map(r => r.weight);
+    const dataActual = records.map(r => r.weight);
+
+    const allStd = BRITISH_STD[GENDER];
+    const monthLabels = allStd.map(s => s.month + '月');
+    const stdMin = allStd.map(s => s.min);
+    const stdMax = allStd.map(s => s.max);
+    const stdAvg = allStd.map(s => s.avg);
 
     if (chart) chart.destroy();
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, 320);
-    gradient.addColorStop(0, 'rgba(255, 140, 66, 0.35)');
-    gradient.addColorStop(1, 'rgba(255, 140, 66, 0.02)');
+    const actualGrad = ctx.createLinearGradient(0, 0, 0, 320);
+    actualGrad.addColorStop(0, 'rgba(255, 140, 66, 0.35)');
+    actualGrad.addColorStop(1, 'rgba(255, 140, 66, 0.02)');
 
     chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{
-                label: '体重 (kg)',
-                data: data,
-                borderColor: '#ff8c42',
-                backgroundColor: gradient,
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#ff8c42',
-                pointBorderWidth: 2.5,
-                pointRadius: 6,
-                pointHoverRadius: 9,
-                pointHoverBackgroundColor: '#ff8c42'
-            }]
+            datasets: [
+                {
+                    label: '品种标准下限',
+                    data: records.map(r => {
+                        const m = calcMonthFromBirth(new Date(r.date));
+                        return lookupStd(m).min;
+                    }),
+                    borderColor: 'rgba(100, 116, 139, 0.35)',
+                    backgroundColor: 'transparent',
+                    borderDash: [4, 4],
+                    borderWidth: 1.5,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    order: 3
+                },
+                {
+                    label: '品种标准上限',
+                    data: records.map(r => {
+                        const m = calcMonthFromBirth(new Date(r.date));
+                        return lookupStd(m).max;
+                    }),
+                    borderColor: 'rgba(100, 116, 139, 0.35)',
+                    backgroundColor: 'rgba(148, 163, 184, 0.08)',
+                    borderDash: [4, 4],
+                    borderWidth: 1.5,
+                    fill: '+1',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    order: 3
+                },
+                {
+                    label: '标准均值',
+                    data: records.map(r => {
+                        const m = calcMonthFromBirth(new Date(r.date));
+                        return lookupStd(m).avg;
+                    }),
+                    borderColor: 'rgba(100, 116, 139, 0.6)',
+                    backgroundColor: 'transparent',
+                    borderDash: [2, 3],
+                    borderWidth: 1.5,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    order: 2
+                },
+                {
+                    label: '波比实际体重 (kg)',
+                    data: dataActual,
+                    borderColor: '#ff8c42',
+                    backgroundColor: actualGrad,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#ff8c42',
+                    pointBorderWidth: 2.5,
+                    pointRadius: 7,
+                    pointHoverRadius: 10,
+                    pointHoverBackgroundColor: '#ff8c42',
+                    order: 1
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
             plugins: {
-                legend: { display: false },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: ['rect', 'rect', 'line', 'circle'],
+                        padding: 14,
+                        font: { family: 'Noto Sans SC', size: 11 },
+                        color: '#8b7355',
+                        boxWidth: 8
+                    }
+                },
                 tooltip: {
                     backgroundColor: 'rgba(61, 44, 30, 0.92)',
                     titleFont: { family: 'Noto Sans SC', size: 12 },
-                    bodyFont: { family: 'Noto Sans SC', size: 13, weight: 'bold' },
+                    bodyFont: { family: 'Noto Sans SC', size: 12, weight: 'bold' },
                     padding: 12,
                     cornerRadius: 10,
-                    displayColors: false,
+                    displayColors: true,
                     callbacks: {
-                        label: (ctx) => `⚖️  ${ctx.parsed.y.toFixed(2)} kg`
+                        label: (ctx) => {
+                            if (ctx.datasetIndex === 3) {
+                                const m = calcMonthFromBirth(new Date(records[ctx.dataIndex].date));
+                                const std = lookupStd(m);
+                                const ev = evalWeight(ctx.parsed.y, std);
+                                return `⚖️  ${ctx.parsed.y.toFixed(2)} kg  (${ev.label})`;
+                            }
+                            return `  ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} kg`;
+                        }
                     }
                 }
             },
@@ -184,6 +412,8 @@ function pickQuote() {
 function render() {
     updateHero();
     updateSide();
+    updateBreedCard();
+    updateHealthCard();
     updateTable();
     updateChart();
     pickQuote();

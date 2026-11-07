@@ -68,10 +68,43 @@
             <section class="card chart-card">
                 <div class="card-head">
                     <h2 class="card-title"><span class="icon-dot chart-dot"></span>体重增长曲线</h2>
-                    <span class="card-subtitle">直观见证波比的成长轨迹</span>
+                    <span class="card-subtitle">vs 英短金渐层品种标准</span>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="weightChart"></canvas>
+                </div>
+            </section>
+
+            <section class="card health-card-main">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot health-dot"></span>健康分析</h2>
+                    <span class="card-subtitle">基于品种标准的偏离评估</span>
+                </div>
+                <div class="health-grid">
+                    <div class="health-tile">
+                        <div class="tile-label">当前月龄</div>
+                        <div class="tile-value" id="health-month">-</div>
+                    </div>
+                    <div class="health-tile">
+                        <div class="tile-label">品种标准区间</div>
+                        <div class="tile-value" id="health-range">-</div>
+                    </div>
+                    <div class="health-tile">
+                        <div class="tile-label">品种标准均值</div>
+                        <div class="tile-value" id="health-avg">-</div>
+                    </div>
+                    <div class="health-tile highlight-tile">
+                        <div class="tile-label">波比实际体重</div>
+                        <div class="tile-value" id="health-actual">-</div>
+                    </div>
+                </div>
+                <div class="health-eval-row">
+                    <span class="health-eval-badge" id="health-eval">-</span>
+                    <span class="health-detail" id="health-detail">—</span>
+                </div>
+                <div class="stage-row">
+                    <div class="stage-badge" id="health-stage-name">-</div>
+                    <div class="stage-note" id="health-stage-note">—</div>
                 </div>
             </section>
 
@@ -88,6 +121,7 @@
                                 <th>体重</th>
                                 <th>增长</th>
                                 <th class="th-bar">增长占比</th>
+                                <th>品种标准</th>
                             </tr>
                         </thead>
                         <tbody id="weight-tbody"></tbody>
@@ -98,6 +132,26 @@
         </div>
 
         <aside class="layout-side">
+            <section class="card breed-card">
+                <div class="card-head">
+                    <h2 class="card-title"><span class="icon-dot breed-dot"></span>品种档案</h2>
+                </div>
+                <div class="breed-emoji">🐱</div>
+                <div class="breed-name" id="breed-name">-</div>
+                <div class="breed-meta">
+                    <span class="breed-tag">晚熟品种 · 3-5 年完全成熟</span>
+                </div>
+                <ul class="breed-facts">
+                    <li><span class="fact-num">1</span><span>成年公猫 5.5–8.5 kg</span></li>
+                    <li><span class="fact-num">2</span><span>6 月龄达成年体重 60-70%</span></li>
+                    <li><span class="fact-num">3</span><span>8 个月后胸廓横向拓宽</span></li>
+                </ul>
+                <div class="breed-stage">
+                    <span class="stage-current-label">当前处于</span>
+                    <span class="stage-current-name" id="breed-stage">-</span>
+                </div>
+            </section>
+
             <section class="card profile-card">
                 <div class="card-head">
                     <h2 class="card-title"><span class="icon-dot profile-dot"></span>基本信息</h2>

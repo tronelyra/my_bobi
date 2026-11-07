@@ -303,6 +303,8 @@ body {
 .table-dot { background: #4ab8ff; box-shadow: 0 0 0 3px rgba(74, 184, 255, 0.15); }
 .profile-dot { background: #a78bfa; box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15); }
 .stats-dot { background: #f472b6; box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.15); }
+.health-dot { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+.breed-dot { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15); }
 
 .card-subtitle {
     font-size: 0.8rem;
@@ -383,6 +385,209 @@ body {
     background: linear-gradient(90deg, var(--primary-light), var(--primary));
     border-radius: 999px;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.std-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    line-height: 1.4;
+}
+
+.std-sub {
+    font-size: 0.65rem;
+    color: var(--text-lighter);
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========== HEALTH CARD ========== */
+
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.health-tile {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.health-tile:hover {
+    border-color: var(--primary-soft);
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.tile-label {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.tile-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.health-tile.highlight-tile {
+    background: linear-gradient(135deg, #fff4e8, #ffe8d1);
+    border-color: var(--primary-soft);
+}
+
+.health-tile.highlight-tile .tile-value {
+    color: var(--primary-dark);
+}
+
+.health-eval-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.health-eval-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.health-detail {
+    font-size: 0.84rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.stage-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stage-badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.10);
+    padding: 5px 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    border: 1px solid rgba(124, 58, 237, 0.20);
+}
+
+.stage-note {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+/* ========== BREED CARD ========== */
+
+.breed-card {
+    background: linear-gradient(160deg, #fffbef 0%, #fff5e4 100%);
+}
+
+.breed-emoji {
+    font-size: 2.4rem;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: waveEmoji 3s ease-in-out infinite;
+}
+
+@keyframes waveEmoji {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-4px) rotate(-5deg); }
+}
+
+.breed-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.breed-meta {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.breed-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    color: var(--primary-dark);
+    background: rgba(255, 140, 66, 0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.breed-facts {
+    list-style: none;
+    margin-bottom: 14px;
+}
+
+.breed-facts li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    padding: 5px 0;
+}
+
+.fact-num {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.breed-stage {
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.stage-current-label {
+    font-size: 0.72rem;
+    color: var(--text-lighter);
+}
+
+.stage-current-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    background: rgba(255, 140, 66, 0.1);
+    padding: 3px 10px;
+    border-radius: 999px;
 }
 
 /* ========== SIDE CARDS ========== */
@@ -584,6 +789,10 @@ body {
     }
 
     .chart-wrapper { height: 260px; }
+
+    .health-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
     .hero-bg .paw { width: 50px; }
     .hero-bg .paw-2 { width: 40px; }
