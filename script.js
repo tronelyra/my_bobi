@@ -279,7 +279,6 @@ function computeDewormSchedule() {
 
 function updateHealthManageCard() {
     const vaccineList = document.getElementById('vaccine-list');
-    const dewormList = document.getElementById('deworm-list');
 
     const vHistory = vaccines.slice().reverse();
     vaccineList.innerHTML = vHistory.length > 0
@@ -292,7 +291,7 @@ function updateHealthManageCard() {
 
     const dwSchedule = computeDewormSchedule();
     const dwNext = document.getElementById('deworm-next');
-    dewormList.innerHTML = dwSchedule.map(s => nextItemHTML(s)).join('');
+    dwNext.innerHTML = dwSchedule.map(s => nextItemHTML(s)).join('');
 }
 
 function nextItemHTML(s) {
