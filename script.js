@@ -556,14 +556,14 @@ function updateTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="td-date">${r.date}</td>
-            <td class="td-weight">${r.weight.toFixed(2)} <small>kg</small></td>
-            <td class="${growClass} td-grow">${growStr}</td>
-            <td class="bar-cell">
+            <td class="td-weight" data-label="体重">${r.weight.toFixed(2)} <small>kg</small></td>
+            <td class="${growClass} td-grow" data-label="较上次">${growStr}</td>
+            <td class="bar-cell" data-label="增长占比">
                 <div class="bar-wrap">
                     <div class="bar-fill" style="width: ${pct}%"></div>
                 </div>
             </td>
-            <td class="td-std">
+            <td class="td-std" data-label="品种标准">
                 <div class="std-range">
                     <div class="std-range-track"></div>
                     <div class="std-range-band" style="left: ${((stdMin - viewMin) / viewRange) * 100}%; width: ${(range / viewRange) * 100}%"></div>
@@ -743,6 +743,17 @@ function pickQuote() {
     document.getElementById('quote-text').textContent = quotes[day % quotes.length];
 }
 
+function initPhotos() {
+    document.querySelectorAll('img[data-photo]').forEach((img) => {
+        const markMissing = () => img.parentElement.classList.add('img-missing');
+        if (img.complete && img.naturalWidth === 0) {
+            markMissing();
+        } else {
+            img.addEventListener('error', markMissing, { once: true });
+        }
+    });
+}
+
 function render() {
     updateHero();
     updateSide();
@@ -752,6 +763,7 @@ function render() {
     updateTable();
     updateChart();
     pickQuote();
+    initPhotos();
 }
 
 window.addEventListener('DOMContentLoaded', render);
