@@ -132,7 +132,11 @@ function formatDate(d) {
 }
 
 function daysFromToday(dateStr) {
-    return daysBetween(new Date(), new Date(dateStr));
+    const now = new Date();
+    const d = new Date(dateStr);
+    const dueMid = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const nowMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((dueMid - nowMid) / (1000 * 60 * 60 * 24));
 }
 
 const VACCINE_INTERVAL_DAYS = 28;
@@ -398,9 +402,7 @@ function updateHealthManageCard() {
 }
 
 function nextItemHTML(s) {
-    const now = new Date();
-    const due = new Date(s.due);
-    const days = daysBetween(now, due);
+    const days = daysFromToday(s.due);
     let daysLabel = '';
     if (days < 0) daysLabel = `已逾期 ${-days} 天`;
     else if (days === 0) daysLabel = '就是今天!';
@@ -434,6 +436,72 @@ function nextItemHTML(s) {
             </div>
         </div>
     `;
+}
+
+function pickMostUrgent(schedule) {
+    if (!schedule.length) return null;
+    return schedule.slice().sort((a, b) => new Date(a.due) - new Date(b.due))[0];
+}
+
+function alertCardHTML(icon, title, item, s, extra) {
+    const days = daysFromToday(s.due);
+    let cls, daysLabel;
+    if (days < 0) {
+        cls = 'alert-overdue';
+        daysLabel = `已逾期 ${-days} 天`;
+    } else if (days === 0) {
+        cls = 'alert-today';
+        daysLabel = '就是今天!';
+    } else if (s.status === 'soon' || days <= 7) {
+        cls = 'alert-soon';
+        daysLabel = `还有 ${days} 天`;
+    } else {
+        cls = 'alert-upcoming';
+        daysLabel = `还有 ${days} 天`;
+    }
+
+    return `
+        <div class="alert-card ${cls}">
+            <span class="alert-icon">${icon}</span>
+            <div class="alert-body">
+                <div class="alert-top">
+                    <span class="alert-title">${title}</span>
+                    <span class="alert-badge">${daysLabel}</span>
+                </div>
+                <div class="alert-date">${s.due}</div>
+                <div class="alert-item">${item}${extra ? ' · ' + extra : ''}</div>
+            </div>
+        </div>
+    `;
+}
+
+function updateAlertStrip() {
+    const strip = document.getElementById('alert-strip');
+    if (!strip) return;
+
+    const vac = pickMostUrgent(computeVaccineSchedule());
+    const nt = computeNeuterSchedule()[0];
+    const deworm = computeDewormSchedule().slice().sort((a, b) => new Date(a.due) - new Date(b.due));
+
+    const cards = [];
+
+    if (vac) {
+        cards.push(alertCardHTML('💉', '疫苗', vac.label, vac));
+    }
+
+    if (nt) {
+        cards.push(alertCardHTML('✂️', '绝育', nt.label, nt));
+    }
+
+    if (deworm.length > 0) {
+        const first = deworm[0];
+        const extra = deworm.slice(1)
+            .map(d => d.due === first.due ? d.label : `${d.label} ${d.due}`)
+            .join(' · ');
+        cards.push(alertCardHTML('🛡️', '驱虫', first.label, first, extra));
+    }
+
+    strip.innerHTML = cards.join('');
 }
 
 function currentGrowthStage(month) {
@@ -774,6 +842,7 @@ function render() {
     updateBreedCard();
     updateHealthCard();
     updateHealthManageCard();
+    updateAlertStrip();
     updateTable();
     updateChart();
     pickQuote();
