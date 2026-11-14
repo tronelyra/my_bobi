@@ -6,7 +6,8 @@ const records = [
     { date: '2026-10-15', weight: 1.87 },
     { date: '2026-10-22', weight: 2.00 },
     { date: '2026-10-27', weight: 2.13 },
-    { date: '2026-11-07', weight: 2.25 }
+    { date: '2026-11-07', weight: 2.25 },
+    { date: '2026-11-14', weight: 2.36 }
 ];
 
 records.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -14,6 +15,7 @@ records.sort((a, b) => new Date(a.date) - new Date(b.date));
 const vaccines = [
     { name: '妙三多（猫三联）', date: '2026-09-28', dose: 1, note: '首免' },
     { name: '妙三多（猫三联）', date: '2026-10-18', dose: 2, note: '二免' },
+    { name: '妙三多（猫三联）', date: '2026-11-14', dose: 3, note: '三免' },
 ];
 
 const dewormRecords = {
@@ -207,6 +209,18 @@ function computeVaccineSchedule() {
                 type: 'rabies-annual', label: '狂犬疫苗 年度加强',
                 due: formatDate(rAnnual), status: rStatus, urgent: rStatus === 'overdue',
                 note: `上一针 ${lastR.date}，每年加强一次`
+            });
+        } else {
+            const rabiesDate = addDays(last.date, RABIES_MIN_GAP_DAYS);
+            const rDays = daysFromToday(formatDate(rabiesDate));
+            let rStatus = 'upcoming';
+            if (rDays < -7) { rStatus = 'overdue'; }
+            else if (rDays <= 7) { rStatus = 'soon'; }
+            schedule.push({
+                type: 'rabies', label: '狂犬疫苗',
+                due: formatDate(rabiesDate), status: rStatus,
+                urgent: rStatus === 'overdue',
+                note: `三联基础免疫已完成（${last.date} 最后一针），间隔至少 ${RABIES_MIN_GAP_DAYS} 天接种狂犬疫苗`
             });
         }
     }
